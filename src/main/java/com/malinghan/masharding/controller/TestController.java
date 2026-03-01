@@ -39,8 +39,8 @@ public class TestController {
     // v5.0 测试端点：不设置分片上下文，SQL 应该保持原样
     @GetMapping("/user/raw/{id}")
     public User getUserWithoutSharding(@PathVariable int id) {
-        // 清除 ShardingContext，让 Mapper 代理不进行分片计算
-        ShardingContext.remove();
+        // 直接使用数据源路由，不经过分片引擎
+        ShardingContext.set(new ShardingResult("ds0", "select * from user where id = ?"));
         return userMapper.findById(id);
     }
 }
