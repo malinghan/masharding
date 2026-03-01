@@ -76,10 +76,17 @@ public class ShardingMapperFactoryBean<T> extends MapperFactoryBean<T> {
 
             // 检查是否需要进行分片计算
             ShardingResult existingResult = ShardingContext.get();
+            boolean skipSharding = false;
+            
             if (existingResult == null) {
-                // 如果上下文为空，则进行分片计算
-                ShardingResult result = shardingEngine.sharding(sql, flatArgs);
-                ShardingContext.set(result);
+                // 检查是否是显式清除的上下文
+                if (ShardingContext.isExplicitlyCleared()) {
+                    skipSharding = true;
+                } else {
+                    // 如果上下文为空且非显式清除，则进行分片计算
+                    ShardingResult result = shardingEngine.sharding(sql, flatArgs);
+                    ShardingContext.set(result);
+                }
             } else if (existingResult.getTargetSqlStatement() == null || 
                       existingResult.getTargetSqlStatement().isEmpty()) {
                 // 如果上下文存在但没有目标SQL，则进行分片计算
