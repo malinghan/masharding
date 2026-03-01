@@ -2,6 +2,9 @@ package com.malinghan.masharding.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.malinghan.masharding.datasource.ShardingDataSource;
+import com.malinghan.masharding.engine.ShardingEngine;
+import com.malinghan.masharding.engine.StandardShardingEngine;
+import com.malinghan.masharding.interceptor.SqlStatementInterceptor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,22 +24,29 @@ public class ShardingAutoConfiguration {
                 : properties.getDatasources().entrySet()) {
             String dsName = entry.getKey();
             ShardingProperties.DataSourceProperties dsProps = entry.getValue();
-            // 创建数据源 Druid
             DruidDataSource druid = new DruidDataSource();
             druid.setUrl(dsProps.getUrl());
             druid.setUsername(dsProps.getUsername());
             druid.setPassword(dsProps.getPassword());
             druid.setDriverClassName(dsProps.getDriverClassName());
-
             targetDataSources.put(dsName, druid);
         }
 
         ShardingDataSource shardingDataSource = new ShardingDataSource();
         shardingDataSource.setTargetDataSources(targetDataSources);
-        // 设置默认数据源（找不到 key 时的兜底）
         shardingDataSource.setDefaultTargetDataSource(
                 targetDataSources.values().iterator().next()
         );
         return shardingDataSource;
+    }
+
+    @Bean
+    public ShardingEngine shardingEngine(ShardingProperties properties) {
+        return new StandardShardingEngine(properties);
+    }
+
+    @Bean
+    public SqlStatementInterceptor sqlStatementInterceptor() {
+        return new SqlStatementInterceptor();
     }
 }
