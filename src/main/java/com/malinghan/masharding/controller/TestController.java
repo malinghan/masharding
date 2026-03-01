@@ -7,6 +7,8 @@ import com.malinghan.masharding.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -42,5 +44,19 @@ public class TestController {
         // 显式清除分片上下文，确保完全绕过分片逻辑
         ShardingContext.remove();
         return userMapper.findById(id);
+    }
+
+    // v6.0 测试端点：POST 创建用户，验证自动分片功能
+    @PostMapping("/user")
+    public User createUser(@RequestBody User user) {
+        try {
+            // v6.0 的分片功能应该是自动的，不需要手动设置 ShardingContext
+            // Mapper 代理会自动计算分片并路由
+            userMapper.insert(user);
+            return user;
+        } catch (Exception e) {
+            // 处理重复主键等异常情况
+            throw new RuntimeException("创建用户失败: " + e.getMessage(), e);
+        }
     }
 }
