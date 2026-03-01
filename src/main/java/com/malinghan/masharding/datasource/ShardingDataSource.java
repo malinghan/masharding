@@ -1,19 +1,19 @@
 package com.malinghan.masharding.datasource;
 
+import com.malinghan.masharding.context.ShardingContext;
+import com.malinghan.masharding.context.ShardingResult;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 public class ShardingDataSource extends AbstractRoutingDataSource {
 
-    // v1.0 硬编码，仅用于验证路由机制
-    private String currentKey = "ds0";
-
-    public void setCurrentKey(String key) {
-        this.currentKey = key;
-    }
-
     @Override
     protected Object determineCurrentLookupKey() {
-        System.out.println("determineCurrentLookupKey = " + currentKey);
-        return currentKey;
+        ShardingResult result = ShardingContext.get();
+        if (result == null) {
+            return null; // 返回 null 时使用默认数据源
+        }
+        String key = result.getTargetDataSourceName();
+        System.out.println("determineCurrentLookupKey = " + key);
+        return key;
     }
 }

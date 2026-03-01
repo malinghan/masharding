@@ -5,7 +5,10 @@
       "Bash(mvn clean compile 2>&1 | head -100)",
       "Bash(mvn spring-boot:run 2>&1 | head -80)",
       "Bash(mvn spring-boot:run 2>&1 | head -60)",
-      "Bash(mvn spring-boot:run 2>&1 | tail -30)"
+      "Bash(mvn spring-boot:run 2>&1 | tail -30)",
+      "mcp__ide__getDiagnostics",
+      "Bash(mvn compile -q 2>&1)",
+      "Bash(lsof -ti:8080 | xargs kill -9 2>/dev/null && echo \"killed\" || echo \"no process on 8080\")"
     ]
   }
 }
