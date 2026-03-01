@@ -10,6 +10,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 public class StandardShardingEngineTest {
 
     private StandardShardingEngine engine;
@@ -47,6 +48,17 @@ public class StandardShardingEngineTest {
         return dsProps;
     }
 
+    /**
+     * 输入: "insert into user(id,name,age) values(?,?,?)" + [3, "ma", 20]
+     * 解析过程:
+     * ├── SQL 类型识别 → SQLInsertStatement
+     * ├── 列名提取 → [id, name, age]
+     * ├── 参数对齐 → {id:3, name:"ma", age:20}
+     * ├── 分片计算 → ds${3%2}=ds1, user${3%3}=user0
+     * └── SQL 改写 → "insert into user0(id,name,age) values(?,?,?)"
+     *
+     * 输出: ShardingResult{ds=ds1, sql=insert into user0(id,name,age) values(?,?,?)}
+     */
     @Test
     public void testInsert() {
         ShardingResult result = engine.sharding(
@@ -59,6 +71,18 @@ public class StandardShardingEngineTest {
         System.out.println("INSERT result: " + result);
     }
 
+    /**
+     * 输入: "select * from user where id=?" + [4]
+     * 解析过程:
+     * ├── SQL 类型识别 → 使用 MySqlSchemaStatVisitor
+     * ├── 表名提取 → user
+     * ├── 条件提取 → WHERE id=?
+     * ├── 参数对齐 → {id:4}
+     * ├── 分片计算 → ds${4%2}=ds0, user${4%3}=user1
+     * └── SQL 改写 → "select * from user1 where id=?"
+     *
+     * 输出: ShardingResult{ds=ds0, sql=select * from user1 where id=?}
+     */
     @Test
     public void testSelect() {
         ShardingResult result = engine.sharding(
@@ -71,6 +95,18 @@ public class StandardShardingEngineTest {
         System.out.println("SELECT result: " + result);
     }
 
+    /**
+     * 输入: "update user set name=? where id=?" + ["newname", 5]
+     * 解析过程:
+     * ├── SQL 类型识别 → SQLUpdateStatement
+     * ├── SET 项跳过 → 跳过 name=? 参数
+     * ├── WHERE 条件提取 → id=?
+     * ├── 参数对齐 → {id:5}
+     * ├── 分片计算 → ds${5%2}=ds1, user${5%3}=user2
+     * └── SQL 改写 → "update user2 set name=? where id=?"
+     *
+     * 输出: ShardingResult{ds=ds1, sql=update user2 set name=? where id=?}
+     */
     @Test
     public void testUpdate() {
         ShardingResult result = engine.sharding(
@@ -83,6 +119,18 @@ public class StandardShardingEngineTest {
         System.out.println("UPDATE result: " + result);
     }
 
+    /**
+     * 输入: "delete from user where id=?" + [2]
+     * 解析过程:
+     * ├── SQL 类型识别 → 使用 MySqlSchemaStatVisitor
+     * ├── 表名提取 → user
+     * ├── 条件提取 → WHERE id=?
+     * ├── 参数对齐 → {id:2}
+     * ├── 分片计算 → ds${2%2}=ds0, user${2%3}=user2
+     * └── SQL 改写 → "delete from user2 where id=?"
+     *
+     * 输出: ShardingResult{ds=ds0, sql=delete from user2 where id=?}
+     */
     @Test
     public void testDelete() {
         ShardingResult result = engine.sharding(

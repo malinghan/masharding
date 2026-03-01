@@ -8,7 +8,24 @@
       "Bash(mvn spring-boot:run 2>&1 | tail -30)",
       "mcp__ide__getDiagnostics",
       "Bash(mvn compile -q 2>&1)",
-      "Bash(lsof -ti:8080 | xargs kill -9 2>/dev/null && echo \"killed\" || echo \"no process on 8080\")"
+      "Bash(lsof -ti:8080 | xargs kill -9 2>/dev/null && echo \"killed\" || echo \"no process on 8080\")",
+      "Bash(mvn compile 2>&1)",
+      "Bash(mvn test -pl . -Dtest=HashShardingStrategyTest --no-transfer-progress 2>&1)",
+      "Bash(mvn test -Dtest=HashShardingStrategyTest --no-transfer-progress 2>&1)",
+      "Bash(mvn test -Dtest=StandardShardingEngineTest --no-transfer-progress 2>&1)",
+      "Bash(mvn compile --no-transfer-progress 2>&1)",
+      "Bash(mvn test -Dtest=\"HashShardingStrategyTest,StandardShardingEngineTest\" --no-transfer-progress 2>&1)",
+      "Bash(mvn clean compile --no-transfer-progress 2>&1 | tail -20)",
+      "Bash(git add src/main/java/com/malinghan/masharding/context/ShardingContext.java src/main/java/com/malinghan/masharding/context/ShardingResult.java src/main/java/com/malinghan/masharding/datasource/ShardingDataSource.java src/main/java/com/malinghan/masharding/TestRunner.java src/main/java/com/malinghan/masharding/mapper/UserMapper.java src/main/java/com/malinghan/masharding/model/User.java src/main/java/com/malinghan/masharding/controller/TestController.java)",
+      "Bash(git add src/main/java/com/malinghan/masharding/context/ShardingContext.java src/main/java/com/malinghan/masharding/context/ShardingResult.java src/main/java/com/malinghan/masharding/datasource/ShardingDataSource.java && git stash -- src/main/java/com/malinghan/masharding/TestRunner.java src/main/java/com/malinghan/masharding/mapper/UserMapper.java src/main/java/com/malinghan/masharding/model/User.java src/main/java/com/malinghan/masharding/controller/TestController.java src/main/java/com/malinghan/masharding/MashardingApplication.java src/main/java/com/malinghan/masharding/config/ShardingAutoConfiguration.java src/main/java/com/malinghan/masharding/config/ShardingProperties.java src/main/resources/application.yaml pom.xml 2>&1)",
+      "Bash(git stash pop 2>&1)",
+      "Bash(git restore --staged src/main/java/com/malinghan/masharding/strategy/ && git add src/main/java/com/malinghan/masharding/context/ src/main/java/com/malinghan/masharding/datasource/ src/main/java/com/malinghan/masharding/TestRunner.java src/main/java/com/malinghan/masharding/mapper/UserMapper.java src/main/java/com/malinghan/masharding/model/ src/main/java/com/malinghan/masharding/controller/TestController.java && git status --short)",
+      "Bash(git add src/main/java/com/malinghan/masharding/context/ src/main/java/com/malinghan/masharding/datasource/ src/main/java/com/malinghan/masharding/TestRunner.java src/main/java/com/malinghan/masharding/mapper/UserMapper.java src/main/java/com/malinghan/masharding/model/ src/main/java/com/malinghan/masharding/controller/TestController.java && git status --short)",
+      "Bash(git add src/main/java/com/malinghan/masharding/TestRunner.java src/main/java/com/malinghan/masharding/mapper/UserMapper.java src/main/java/com/malinghan/masharding/model/User.java src/main/java/com/malinghan/masharding/controller/TestController.java && git commit -m \"$\\(cat <<'EOF'\nfeat: v2.0 - ThreadLocal 传递路由结果\n\n引入 ShardingContext\\(ThreadLocal\\) 替代实例变量，解决多线程安全问题。\n封装 ShardingResult 对象传递目标数据源名称和目标 SQL。\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git tag v2.0)",
+      "Bash(git tag -d v2.0 && git tag v2.0 && git status --short)",
+      "Bash(git add src/main/java/com/malinghan/masharding/strategy/ src/main/java/com/malinghan/masharding/config/ShardingProperties.java src/main/resources/application.yaml pom.xml src/test/java/com/malinghan/masharding/HashShardingStrategyTest.java && git commit -m \"$\\(cat <<'EOF'\nfeat: v3.0 - 分片策略与 Groovy 表达式引擎\n\n引入 ShardingStrategy 接口和 HashShardingStrategy，用 Groovy 内联表达式\n动态计算目标库名/表名。新增 InlineExpressionParser 封装 GroovyShell。\nShardingProperties 新增 databaseStrategy/tableStrategies/actualTables 配置。\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git tag v3.0)",
+      "Bash(git add src/main/java/com/malinghan/masharding/engine/ src/main/java/com/malinghan/masharding/config/ShardingAutoConfiguration.java pom.xml src/test/java/com/malinghan/masharding/StandardShardingEngineTest.java && git commit -m \"$\\(cat <<'EOF'\nfeat: v4.0 - SQL 解析与分片引擎\n\n引入 ShardingEngine 接口和 StandardShardingEngine，用 Druid SQL Parser\n自动从 SQL 中提取逻辑表名和分片列值，结合策略计算目标库表，返回\nShardingResult（含物理 SQL）。支持 INSERT/SELECT/UPDATE/DELETE。\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git tag v4.0)",
+      "Bash(git add src/main/java/com/malinghan/masharding/interceptor/ src/main/java/com/malinghan/masharding/config/ShardingAutoConfiguration.java pom.xml && git commit -m \"$\\(cat <<'EOF'\nfeat: v5.0 - MyBatis 拦截器替换逻辑 SQL\n\n实现 SqlStatementInterceptor，拦截 StatementHandler.prepare，\n用 Unsafe 替换 BoundSql.sql 字段，将逻辑 SQL 改写为物理 SQL。\n业务代码无感知，SQL 改写在框架层透明完成。\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\nEOF\n\\)\" && git tag v5.0)"
     ]
   }
 }
