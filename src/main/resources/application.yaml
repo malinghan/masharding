@@ -1,0 +1,11 @@
+spring:
+  sharding:
+    datasources:
+      ds0:
+        url: jdbc:mysql://localhost:3306/db0?useSSL=false&serverTimezone=UTC
+        username: root
+        password: 123456
+      ds1:
+        url: jdbc:mysql://localhost:3306/db1?useSSL=false&serverTimezone=UTC
+        username: root
+        password: 123456
