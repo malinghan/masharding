@@ -9,3 +9,20 @@ spring:
         url: jdbc:mysql://localhost:3306/db1?useSSL=false&serverTimezone=UTC
         username: root
         password: 123456
+    database-strategy:
+      sharding-column: id
+      algorithm-expression: "ds${id % 2}"
+    table-strategies:
+      user:
+        sharding-column: id
+        algorithm-expression: "user${id % 3}"
+    actual-tables:
+      user: [user0, user1, user2]
+
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+logging:
+  level:
+    com.malinghan.masharding.mapper: DEBUG
