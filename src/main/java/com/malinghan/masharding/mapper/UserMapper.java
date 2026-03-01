@@ -1,22 +1,22 @@
 package com.malinghan.masharding.mapper;
 
 import com.malinghan.masharding.model.User;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
-@Repository
-public class UserMapper {
+@Mapper
+public interface UserMapper {
 
-    private final JdbcTemplate jdbcTemplate;
+    @Select("select * from user where id = #{id}")
+    User findById(@Param("id") int id);
 
-    public UserMapper(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+    @Insert("insert into user(id, name, age) values(#{id}, #{name}, #{age})")
+    void insert(User user);
 
-    public List<User> findAll() {
-        return jdbcTemplate.query("select * from user", new BeanPropertyRowMapper<>(User.class));
-    }
+    @Select("select * from user")
+    List<User> findAll();
 }
