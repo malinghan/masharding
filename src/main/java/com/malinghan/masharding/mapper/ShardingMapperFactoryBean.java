@@ -74,8 +74,11 @@ public class ShardingMapperFactoryBean<T> extends MapperFactoryBean<T> {
             String sql = boundSql.getSql().trim();
             Object[] flatArgs = flattenArgs(boundSql, paramObject);
 
-            ShardingResult result = shardingEngine.sharding(sql, flatArgs);
-            ShardingContext.set(result);
+            // 只有当 ShardingContext 为空时才进行分片计算
+            if (ShardingContext.get() == null) {
+                ShardingResult result = shardingEngine.sharding(sql, flatArgs);
+                ShardingContext.set(result);
+            }
 
             try {
                 return method.invoke(originalMapper, args);
